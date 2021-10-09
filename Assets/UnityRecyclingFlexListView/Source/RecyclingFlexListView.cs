@@ -16,7 +16,7 @@ namespace UnityRecyclingFlexListView
         [SerializeField]
         private RecyclingFlexListViewItem childPrefab;
 
-        // public float RowPadding = 15f;
+        public float RowPadding = 15f;
         public ItemDelegate ItemCallback;
 
         protected ScrollRect ScrollRect;
@@ -87,7 +87,7 @@ namespace UnityRecyclingFlexListView
                 childPrefab.RectTransform.rect.height);
             _itemHeightDict[_rowCount] = height;
             _itemYTopPosDict[_rowCount] = _currentContentHeight;
-            _currentContentHeight += height;
+            _currentContentHeight += height + RowPadding;
             RowCount++;
         }
 
