@@ -338,9 +338,8 @@ namespace UnityRecyclingFlexListView
 
         protected virtual void UpdateContentHeight()
         {
-            // float height = ChildPrefab.RectTransform.rect.height * rowCount + (rowCount-1) * RowPadding;
             //アイテム個別の高さを持たせる
-            var height = _itemHeightDict.Values.Sum();
+            var height = _itemHeightDict.Values.Sum() + RowPadding * (_rowCount - 1);
             var sz = ScrollRect.content.sizeDelta;
             ScrollRect.content.sizeDelta = new Vector2(sz.x, height);
         }
