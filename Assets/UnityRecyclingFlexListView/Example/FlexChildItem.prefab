@@ -243,9 +243,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ba67dbdc702a6241bfb9906b59fdbf7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftText: {fileID: 5198050249495137039}
-  rightText1: {fileID: 5698122441288927554}
-  rightText2: {fileID: 2320007929958512595}
+  _leftText: {fileID: 5198050249495137039}
+  _rightText1: {fileID: 5698122441288927554}
+  _rightText2: {fileID: 2320007929958512595}
 --- !u!1 &4991227333897739239
 GameObject:
   m_ObjectHideFlags: 0

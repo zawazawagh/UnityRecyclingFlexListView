@@ -1,34 +1,44 @@
+using UnityEngine;
 using UnityEngine.UI;
 
-namespace UnityRecyclingFlexListView
+namespace UnityRecyclingFlexListView.Example
 {
-    public class TestFlexChildItem : RecyclingFlexListViewItem {
-        public Text leftText;
-        public Text rightText1;
-        public Text rightText2;
+    public class TestFlexChildItem : RecyclingFlexListViewItem
+    {
+        [SerializeField]
+        private Text _leftText;
+
+        [SerializeField]
+        private Text _rightText1;
+
+        [SerializeField]
+        private Text _rightText2;
 
         private TestFlexChildData _childData;
-        public TestFlexChildData ChildData {
-            get { return _childData; }
-            set {
+
+        public TestFlexChildData ChildData
+        {
+            get => _childData;
+            set
+            {
                 _childData = value;
-                leftText.text = _childData.Title;
-                rightText1.text = _childData.Note1;
-                rightText2.text = _childData.Note2;
+                _leftText.text = _childData.Title;
+                _rightText1.text = _childData.Note1;
+                _rightText2.text = _childData.Note2;
             }
         }
 
         public override float CalculateHeight(string content)
         {
-            leftText.text = content;
-            leftText.Rebuild(CanvasUpdate.PreRender);
-            return leftText.preferredHeight;
+            _leftText.text = content;
+            _leftText.Rebuild(CanvasUpdate.PreRender);
+            return _leftText.preferredHeight;
         }
 
         public override float GetHeight()
         {
-            leftText.Rebuild(CanvasUpdate.PreRender);
-            return leftText.preferredHeight;
+            _leftText.Rebuild(CanvasUpdate.PreRender);
+            return _leftText.preferredHeight;
         }
     }
 }

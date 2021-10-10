@@ -14,9 +14,11 @@ namespace UnityRecyclingFlexListView
         protected const int RowsAboveBelow = 1;
 
         [SerializeField]
-        private RecyclingFlexListViewItem childPrefab;
+        private RecyclingFlexListViewItem _childPrefab;
 
-        public float RowPadding = 15f;
+        [SerializeField]
+        public float _rowPadding = 15f;
+
         public ItemDelegate ItemCallback;
 
         protected ScrollRect ScrollRect;
@@ -25,10 +27,10 @@ namespace UnityRecyclingFlexListView
         protected int SourceDataRowStart;
         protected bool IgnoreScrollChange;
         protected float PreviousBuildHeight;
-
-        private int _rowCount;
         private readonly Dictionary<int, float> _itemHeightDict = new Dictionary<int, float>();
         private readonly Dictionary<int, float> _itemYTopPosDict = new Dictionary<int, float>();
+
+        private int _rowCount;
         private int _currentFirstVisibleRowIndex;
         private float _currentContentHeight;
         private RecyclingFlexListViewItem _heightCalculator;
@@ -55,12 +57,12 @@ namespace UnityRecyclingFlexListView
             }
         }
 
-        public float ItemMinHeight => childPrefab.RectTransform.rect.height;
+        public float ItemMinHeight => _childPrefab.RectTransform.rect.height;
 
         protected virtual void Awake()
         {
             ScrollRect = GetComponent<ScrollRect>();
-            _heightCalculator = Instantiate(childPrefab, ScrollRect.content.transform)
+            _heightCalculator = Instantiate(_childPrefab, ScrollRect.content.transform)
                 .GetComponent<RecyclingFlexListViewItem>();
             _heightCalculator.name = "heightCalculator";
             _heightCalculator.gameObject.SetActive(false);
@@ -84,10 +86,10 @@ namespace UnityRecyclingFlexListView
         public void AddItem(ChildData data)
         {
             var height = Mathf.Max(_heightCalculator.CalculateHeight(data.FlexibleItem()),
-                childPrefab.RectTransform.rect.height);
+                _childPrefab.RectTransform.rect.height);
             _itemHeightDict[_rowCount] = height;
             _itemYTopPosDict[_rowCount] = _currentContentHeight;
-            _currentContentHeight += height + RowPadding;
+            _currentContentHeight += height + _rowPadding;
             RowCount++;
         }
 
@@ -129,10 +131,15 @@ namespace UnityRecyclingFlexListView
             {
                 var row = rowStart + i;
                 if (row < SourceDataRowStart || row >= sourceDataLimit)
+                {
                     continue;
+                }
 
                 var bufIdx = WrapChildIndex(ChildBufferStart + row - SourceDataRowStart);
-                if (ChildItems[bufIdx] != null) UpdateChild(ChildItems[bufIdx], row);
+                if (ChildItems[bufIdx] != null)
+                {
+                    UpdateChild(ChildItems[bufIdx], row);
+                }
             }
 
             ReorganiseContent(true);
@@ -175,7 +182,9 @@ namespace UnityRecyclingFlexListView
             var vpBottom = vpTop + vpHeight;
             var contentHeight = ScrollRect.content.sizeDelta.y;
             if (vpBottom > contentHeight) // if content is shorter than vp always stop at 0
+            {
                 vpTop = Mathf.Max(0, vpTop - (vpBottom - contentHeight));
+            }
 
             return Mathf.InverseLerp(contentHeight - vpHeight, 0, vpTop);
         }
@@ -185,8 +194,9 @@ namespace UnityRecyclingFlexListView
             if (ChildItems != null &&
                 row >= SourceDataRowStart && row < SourceDataRowStart + ChildItems.Length && // within window 
                 row < _rowCount) // within overall range
-
+            {
                 return ChildItems[WrapChildIndex(ChildBufferStart + row - SourceDataRowStart)];
+            }
 
             return null;
         }
@@ -201,12 +211,21 @@ namespace UnityRecyclingFlexListView
                 childCount += RowsAboveBelow * 2; // X before, X after
 
                 if (ChildItems == null)
+                {
                     ChildItems = new RecyclingFlexListViewItem[childCount];
-                else if (childCount > ChildItems.Length) Array.Resize(ref ChildItems, childCount);
+                }
+                else if (childCount > ChildItems.Length)
+                {
+                    Array.Resize(ref ChildItems, childCount);
+                }
 
                 for (var i = 0; i < ChildItems.Length; ++i)
                 {
-                    if (ChildItems[i] == null) ChildItems[i] = Instantiate(childPrefab);
+                    if (ChildItems[i] == null)
+                    {
+                        ChildItems[i] = Instantiate(_childPrefab);
+                    }
+
                     ChildItems[i].RectTransform.SetParent(ScrollRect.content, false);
                     ChildItems[i].gameObject.SetActive(false);
                 }
@@ -219,7 +238,10 @@ namespace UnityRecyclingFlexListView
 
         protected virtual void OnScrollChanged(Vector2 normalisedPos)
         {
-            if (!IgnoreScrollChange) ReorganiseContent(false);
+            if (!IgnoreScrollChange)
+            {
+                ReorganiseContent(false);
+            }
         }
 
         protected virtual void ReorganiseContent(bool clearContents)
@@ -248,22 +270,38 @@ namespace UnityRecyclingFlexListView
             {
                 if (ymin > _itemYTopPosDict[_currentFirstVisibleRowIndex + 1] +
                     _itemHeightDict[_currentFirstVisibleRowIndex + 1])
+                {
                     for (var i = _currentFirstVisibleRowIndex;
                         _currentFirstVisibleRowIndex + 1 < _itemYTopPosDict.Count && i < _rowCount;
                         i++)
+                    {
                         if (ymin > _itemYTopPosDict[_currentFirstVisibleRowIndex + 1] +
                                 _itemHeightDict[_currentFirstVisibleRowIndex + 1])
                             //firstvisibleindexのアイテムが完全に見えなくなったら、数字をひとつ上げる
+                        {
                             _currentFirstVisibleRowIndex++;
+                        }
                         else
+                        {
                             break;
+                        }
+                    }
+                }
                 else if (ymin < _itemYTopPosDict[_currentFirstVisibleRowIndex + 1])
+                {
                     for (var i = _currentFirstVisibleRowIndex; i > 0; i--)
+                    {
                         if (ymin < _itemYTopPosDict[_currentFirstVisibleRowIndex + 1])
                             //firstvisibleindexのアイテムが完全に見えたら、数字をひとつ下げる
+                        {
                             _currentFirstVisibleRowIndex = Mathf.Max(0, _currentFirstVisibleRowIndex - 1);
+                        }
                         else
+                        {
                             break;
+                        }
+                    }
+                }
             }
 
             var newRowStart = _currentFirstVisibleRowIndex - RowsAboveBelow;
@@ -274,7 +312,10 @@ namespace UnityRecyclingFlexListView
                 SourceDataRowStart = newRowStart;
                 ChildBufferStart = 0;
                 var rowIdx = newRowStart;
-                foreach (var item in ChildItems) UpdateChild(item, rowIdx++);
+                foreach (var item in ChildItems)
+                {
+                    UpdateChild(item, rowIdx++);
+                }
             }
             else if (diff != 0)
             {
@@ -323,8 +364,8 @@ namespace UnityRecyclingFlexListView
 
                 ItemCallback(child, rowIdx);
 
-                var childRect = childPrefab.RectTransform.rect;
-                var pivot = childPrefab.RectTransform.pivot;
+                var childRect = _childPrefab.RectTransform.rect;
+                var pivot = _childPrefab.RectTransform.pivot;
                 //itemの上辺のy座標はdictから取得
                 var ytoppos = _itemYTopPosDict[rowIdx];
                 var ypos = ytoppos + (1f - pivot.y) * childRect.height;
@@ -339,15 +380,17 @@ namespace UnityRecyclingFlexListView
         protected virtual void UpdateContentHeight()
         {
             //アイテム個別の高さを持たせる
-            var height = _itemHeightDict.Values.Sum() + RowPadding * (_rowCount - 1);
+            var height = _itemHeightDict.Values.Sum() + _rowPadding * (_rowCount - 1);
             var sz = ScrollRect.content.sizeDelta;
             ScrollRect.content.sizeDelta = new Vector2(sz.x, height);
         }
-    
+
         private int WrapChildIndex(int idx)
         {
             while (idx < 0)
+            {
                 idx += ChildItems.Length;
+            }
 
             return idx % ChildItems.Length;
         }
@@ -364,14 +407,17 @@ namespace UnityRecyclingFlexListView
             //変更があったdataのみ高さチェックを行う
             var currentHeight = _itemHeightDict[row];
             var calculatedHeight = Mathf.Max(ChildItems[row].CalculateHeight(data.FlexibleItem()),
-                childPrefab.RectTransform.rect.height);
+                _childPrefab.RectTransform.rect.height);
             if (Math.Abs(currentHeight - calculatedHeight) > 0.01f)
             {
                 ChildItems[row].RectTransform.sizeDelta =
                     new Vector2(ChildItems[row].RectTransform.sizeDelta.x, calculatedHeight);
                 _itemHeightDict[row] = calculatedHeight;
                 var diff = calculatedHeight - currentHeight;
-                for (var i = row + 1; i < RowCount; i++) _itemYTopPosDict[i] += diff;
+                for (var i = row + 1; i < RowCount; i++)
+                {
+                    _itemYTopPosDict[i] += diff;
+                }
 
                 _currentContentHeight += diff;
                 UpdateContentHeight();

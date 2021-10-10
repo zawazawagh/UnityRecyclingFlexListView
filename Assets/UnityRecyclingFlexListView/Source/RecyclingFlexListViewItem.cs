@@ -15,22 +15,19 @@ namespace UnityRecyclingFlexListView
 
         private RectTransform _rectTransform;
 
-        public RecyclingFlexListView ParentList
-        {
-            get => _parentList;
-        }
+        public RecyclingFlexListView ParentList => _parentList;
 
-        public int CurrentRow
-        {
-            get => _currentRow;
-        }
+        public int CurrentRow => _currentRow;
 
         public RectTransform RectTransform
         {
             get
             {
                 if (_rectTransform == null)
+                {
                     _rectTransform = GetComponent<RectTransform>();
+                }
+
                 return _rectTransform;
             }
         }
